@@ -45,9 +45,24 @@ const dailyVisitingSchema = new mongoose.Schema({
 
 const DailyVisitingCustomer = mongoose.models.DailyVisitingCustomer || mongoose.model('DailyVisitingCustomer', dailyVisitingSchema);
 
+// lib/db.ts (update your connectToDB function)
 export async function connectToDB() {
   if (mongoose.connection.readyState >= 1) return;
-  await mongoose.connect(MONGODB_URI!);
+
+  const options = {
+    serverSelectionTimeoutMS: 30000,   // 30 seconds (default is 30s, but explicit)
+    connectTimeoutMS: 30000,
+    socketTimeoutMS: 45000,
+    family: 4,                         // force IPv4 (sometimes helps with DNS)
+  };
+
+  try {
+    await mongoose.connect(process.env.MONGODB_URI!, options);
+    console.log('MongoDB connected successfully');
+  } catch (err) {
+    console.error('MongoDB connection failed:', err);
+    throw err; // let caller handle
+  }
 }
 
 // ── Purchased Customers helpers ──────────────────────────────────────────
