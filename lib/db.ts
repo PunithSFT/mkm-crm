@@ -5,20 +5,24 @@ if (!MONGODB_URI) {
   throw new Error('Please define MONGODB_URI in .env.local');
 }
 
-// ── Purchased Customers (existing) ───────────────────────────────────────
+// ── Purchased Customers Schema ─────────────────────────────────────────────
 const purchasedSchema = new mongoose.Schema({
   date: { type: String, required: true },
   customerName: { type: String, required: true },
-  item: { type: String, enum: ['Rug', 'Casa furniture', 'Gebbe', 'Sophie Garcia', 'Mkm furnitures', 'Sereno pots'], required: true },
+  item: {
+    type: String,
+    enum: ['Rug', 'Casa furniture', 'Gebbe', 'Sophie Garcia', 'Mkm furnitures', 'Sereno pots'],
+    required: true
+  },
   itemPurchasedAmount: { type: Number, required: true },
   telephoneNumber: { type: String, required: true },
   value: { type: Number, required: true },
   shortDescription: { type: String, default: '' },
 }, { timestamps: true });
 
-const PurchasedCustomer = mongoose.models.PurchasedCustomer || mongoose.model('PurchasedCustomer', purchasedSchema);
+export const PurchasedCustomer = mongoose.models.PurchasedCustomer || mongoose.model('PurchasedCustomer', purchasedSchema);
 
-// ── Visiting Clients (new) ────────────────────────────────────────────────
+// ── Visiting Clients Schema ────────────────────────────────────────────────
 const visitingClientSchema = new mongoose.Schema({
   date: { type: String, required: true },
   clientName: { type: String, required: true },
@@ -30,42 +34,45 @@ const visitingClientSchema = new mongoose.Schema({
   complimentStatus: { type: String, enum: ['Yes', 'No'], required: true },
 }, { timestamps: true });
 
-const VisitingClient = mongoose.models.VisitingClient || mongoose.model('VisitingClient', visitingClientSchema);
+export const VisitingClient = mongoose.models.VisitingClient || mongoose.model('VisitingClient', visitingClientSchema);
 
-// ── Daily Visiting Customers (same as Purchased) ──────────────────────────
+// ── Daily Visiting Customers Schema ────────────────────────────────────────
 const dailyVisitingSchema = new mongoose.Schema({
   date: { type: String, required: true },
   customerName: { type: String, required: true },
-  item: { type: String, enum: ['Rug', 'Casa furniture', 'Gebbe'], required: true },
+  item: {
+    type: String,
+    enum: ['Rug', 'Casa furniture', 'Gebbe', 'Sophie Garcia', 'Mkm furnitures', 'Sereno pots'],
+    required: true
+  },
   itemPurchasedAmount: { type: Number, required: true },
   telephoneNumber: { type: String, required: true },
   value: { type: Number, required: true },
   shortDescription: { type: String, default: '' },
 }, { timestamps: true });
 
-const DailyVisitingCustomer = mongoose.models.DailyVisitingCustomer || mongoose.model('DailyVisitingCustomer', dailyVisitingSchema);
+export const DailyVisitingCustomer = mongoose.models.DailyVisitingCustomer || mongoose.model('DailyVisitingCustomer', dailyVisitingSchema);
 
-// lib/db.ts (update your connectToDB function)
 export async function connectToDB() {
   if (mongoose.connection.readyState >= 1) return;
 
   const options = {
-    serverSelectionTimeoutMS: 30000,   // 30 seconds (default is 30s, but explicit)
+    serverSelectionTimeoutMS: 30000,   // 30 seconds
     connectTimeoutMS: 30000,
     socketTimeoutMS: 45000,
-    family: 4,                         // force IPv4 (sometimes helps with DNS)
+    family: 4,                         // Prefer IPv4
   };
 
   try {
-    await mongoose.connect(process.env.MONGODB_URI!, options);
+    await mongoose.connect(MONGODB_URI!, options);
     console.log('MongoDB connected successfully');
   } catch (err) {
     console.error('MongoDB connection failed:', err);
-    throw err; // let caller handle
+    throw err;
   }
 }
 
-// ── Purchased Customers helpers ──────────────────────────────────────────
+// ── Purchased Customers Helpers ────────────────────────────────────────────
 export async function addPurchasedCustomer(data: any) {
   await connectToDB();
   await PurchasedCustomer.create({
@@ -83,6 +90,7 @@ export async function getAllPurchasedCustomers() {
   await connectToDB();
   const docs = await PurchasedCustomer.find({}).lean();
   return docs.map((doc: any) => ({
+    _id: doc._id.toString(),
     Date: doc.date,
     'Customer Name': doc.customerName,
     Item: doc.item,
@@ -93,7 +101,41 @@ export async function getAllPurchasedCustomers() {
   }));
 }
 
-// ── Visiting Clients helpers ─────────────────────────────────────────────
+export async function getPurchasedCustomerById(id: string) {
+  await connectToDB();
+  const doc = await PurchasedCustomer.findById(id).lean();
+  if (!doc) return null;
+  return {
+    _id: doc._id.toString(),
+    date: doc.date,
+    customerName: doc.customerName,
+    item: doc.item,
+    itemPurchasedAmount: doc.itemPurchasedAmount,
+    telephoneNumber: doc.telephoneNumber,
+    value: doc.value,
+    shortDescription: doc.shortDescription || '',
+  };
+}
+
+export async function updatePurchasedCustomer(id: string, data: any) {
+  await connectToDB();
+  await PurchasedCustomer.findByIdAndUpdate(id, {
+    date: data.date,
+    customerName: data.customerName,
+    item: data.item,
+    itemPurchasedAmount: Number(data.itemPurchasedAmount),
+    telephoneNumber: data.telephoneNumber,
+    value: Number(data.value),
+    shortDescription: data.shortDescription || '',
+  });
+}
+
+export async function deletePurchasedCustomer(id: string) {
+  await connectToDB();
+  await PurchasedCustomer.findByIdAndDelete(id);
+}
+
+// ── Visiting Clients Helpers ──────────────────────────────────────────────
 export async function addVisitingClient(data: any) {
   await connectToDB();
   await VisitingClient.create({
@@ -112,6 +154,7 @@ export async function getAllVisitingClients() {
   await connectToDB();
   const docs = await VisitingClient.find({}).lean();
   return docs.map((doc: any) => ({
+    _id: doc._id.toString(),
     Date: doc.date,
     'Client Name': doc.clientName,
     'Contact Number': doc.contactNumber,
@@ -123,7 +166,43 @@ export async function getAllVisitingClients() {
   }));
 }
 
-// ── Daily Visiting Customers helpers (same shape as Purchased) ────────────
+export async function getVisitingClientById(id: string) {
+  await connectToDB();
+  const doc = await VisitingClient.findById(id).lean();
+  if (!doc) return null;
+  return {
+    _id: doc._id.toString(),
+    date: doc.date,
+    clientName: doc.clientName,
+    contactNumber: doc.contactNumber,
+    location: doc.location,
+    email: doc.email || '',
+    lastVisitDate: doc.lastVisitDate,
+    remarks: doc.remarks || '',
+    complimentStatus: doc.complimentStatus,
+  };
+}
+
+export async function updateVisitingClient(id: string, data: any) {
+  await connectToDB();
+  await VisitingClient.findByIdAndUpdate(id, {
+    date: data.date,
+    clientName: data.clientName,
+    contactNumber: data.contactNumber,
+    location: data.location,
+    email: data.email || '',
+    lastVisitDate: data.lastVisitDate,
+    remarks: data.remarks || '',
+    complimentStatus: data.complimentStatus,
+  });
+}
+
+export async function deleteVisitingClient(id: string) {
+  await connectToDB();
+  await VisitingClient.findByIdAndDelete(id);
+}
+
+// ── Daily Visiting Customers Helpers ──────────────────────────────────────
 export async function addDailyVisitingCustomer(data: any) {
   await connectToDB();
   await DailyVisitingCustomer.create({
@@ -141,6 +220,7 @@ export async function getAllDailyVisitingCustomers() {
   await connectToDB();
   const docs = await DailyVisitingCustomer.find({}).lean();
   return docs.map((doc: any) => ({
+    _id: doc._id.toString(),
     Date: doc.date,
     'Customer Name': doc.customerName,
     Item: doc.item,
@@ -149,4 +229,38 @@ export async function getAllDailyVisitingCustomers() {
     Value: doc.value,
     'Short Description': doc.shortDescription || '',
   }));
+}
+
+export async function getDailyVisitingCustomerById(id: string) {
+  await connectToDB();
+  const doc = await DailyVisitingCustomer.findById(id).lean();
+  if (!doc) return null;
+  return {
+    _id: doc._id.toString(),
+    date: doc.date,
+    customerName: doc.customerName,
+    item: doc.item,
+    itemPurchasedAmount: doc.itemPurchasedAmount,
+    telephoneNumber: doc.telephoneNumber,
+    value: doc.value,
+    shortDescription: doc.shortDescription || '',
+  };
+}
+
+export async function updateDailyVisitingCustomer(id: string, data: any) {
+  await connectToDB();
+  await DailyVisitingCustomer.findByIdAndUpdate(id, {
+    date: data.date,
+    customerName: data.customerName,
+    item: data.item,
+    itemPurchasedAmount: Number(data.itemPurchasedAmount),
+    telephoneNumber: data.telephoneNumber,
+    value: Number(data.value),
+    shortDescription: data.shortDescription || '',
+  });
+}
+
+export async function deleteDailyVisitingCustomer(id: string) {
+  await connectToDB();
+  await DailyVisitingCustomer.findByIdAndDelete(id);
 }

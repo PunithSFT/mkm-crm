@@ -111,14 +111,17 @@ export default function AddDailyVisit() {
             <div className="md:col-span-1">
               <label className={labelClasses}>Product Category</label>
               <select
-                value={form.item}
-                onChange={(e) => setForm({ ...form, item: e.target.value })}
-                className={inputClasses}
-              >
-                <option value="Rug">Rug</option>
-                <option value="Casa furniture">Casa furniture</option>
-                <option value="Gebbe">Gebbe</option>
-              </select>
+  value={form.item}
+  onChange={(e) => setForm({ ...form, item: e.target.value })}
+  className={inputClasses}
+>
+  <option value="Rug">Rug</option>
+  <option value="Casa furniture">Casa furniture</option>
+  <option value="Gebbe">Gebbe</option>
+  <option value="Sophie Garcia">Sophie Garcia</option>
+  <option value="Mkm furnitures">Mkm furnitures</option>
+  <option value="Sereno pots">Sereno pots</option>
+</select>
             </div>
             <div>
               <label className={labelClasses}>Quantity</label>

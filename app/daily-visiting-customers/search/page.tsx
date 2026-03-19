@@ -1,40 +1,137 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 
+interface DailyVisitRecord {
+  _id: string;
+  Date: string;
+  'Customer Name': string;
+  Item: string;
+  'Purchased Amount': number;
+  'Telephone Number': string;
+  Value: number;
+  'Short Description': string;
+}
+
 export default function SearchDailyVisits() {
-  const [customers, setCustomers] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<DailyVisitRecord[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filtered, setFiltered] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Modal state
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<DailyVisitRecord | null>(null);
+  const [updating, setUpdating] = useState(false);
+  const [updateError, setUpdateError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/daily-visiting-customers')
       .then(res => res.json())
-      .then(data => {
-        setCustomers(data);
-        setFiltered(data);
+      .then((data: DailyVisitRecord[]) => {
+        const normalized = data.map((c) => ({
+          ...c,
+          _id: c._id?.toString() || '',
+        }));
+        setCustomers(normalized);
         setIsLoading(false);
       })
-      .catch(() => setIsLoading(false));
+      .catch((err) => {
+        console.error('Fetch error:', err);
+        setIsLoading(false);
+      });
   }, []);
 
-  useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFiltered(customers);
-      return;
-    }
+  const filtered = useMemo(() => {
+    if (!searchTerm.trim()) return customers;
     const term = searchTerm.toLowerCase();
-    const result = customers.filter(c =>
+    return customers.filter(c =>
       c['Customer Name']?.toLowerCase().includes(term) ||
       c['Telephone Number']?.toLowerCase().includes(term) ||
       c['Short Description']?.toLowerCase().includes(term)
     );
-    setFiltered(result);
   }, [searchTerm, customers]);
 
   const handleDownload = () => {
     window.location.href = '/api/download-daily';
+  };
+
+  // ==================== EDIT ====================
+  const openEditModal = (record: DailyVisitRecord) => {
+    setEditingRecord({ ...record }); 
+    setUpdateError(null);
+    setShowEditModal(true);
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingRecord || !editingRecord._id) return;
+
+    setUpdating(true);
+    setUpdateError(null);
+
+    const payload = {
+      date: editingRecord.Date,
+      customerName: editingRecord['Customer Name'],
+      item: editingRecord.Item,
+      itemPurchasedAmount: Number(editingRecord['Purchased Amount']),
+      telephoneNumber: editingRecord['Telephone Number'],
+      value: Number(editingRecord.Value),
+      shortDescription: editingRecord['Short Description'] || '',
+    };
+
+    try {
+      const res = await fetch(`/api/daily-visiting-customers/${editingRecord._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const freshRes = await fetch('/api/daily-visiting-customers');
+        const freshData: DailyVisitRecord[] = await freshRes.json();
+        const normalized = freshData.map((c) => ({
+          ...c,
+          _id: c._id?.toString() || '',
+        }));
+        setCustomers(normalized);
+        setShowEditModal(false);
+        setEditingRecord(null);
+        alert('Visit record updated successfully!');
+      } else {
+        const err = await res.json();
+        setUpdateError(err.message || 'Failed to update');
+      }
+    } catch (err: any) {
+      setUpdateError('Network error: ' + err.message);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  // ==================== DELETE ====================
+  const handleDelete = async (id: string) => {
+    if (!id || !confirm('Delete this visit record?')) return;
+
+    try {
+      const res = await fetch(`/api/daily-visiting-customers/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        const freshRes = await fetch('/api/daily-visiting-customers');
+        const freshData: DailyVisitRecord[] = await freshRes.json();
+        const normalized = freshData.map((c) => ({
+          ...c,
+          _id: c._id?.toString() || '',
+        }));
+        setCustomers(normalized);
+        alert('Record deleted successfully!');
+      } else {
+        alert('Failed to delete');
+      }
+    } catch (err) {
+      alert('Network error while deleting');
+    }
   };
 
   return (
@@ -92,12 +189,13 @@ export default function SearchDailyVisits() {
                 <th className="p-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Telephone</th>
                 <th className="p-5 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Value</th>
                 <th className="p-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Description</th>
+                <th className="p-5 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-dark-border">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="p-20 text-center">
+                  <td colSpan={8} className="p-20 text-center">
                     <div className="flex flex-col items-center gap-4">
                       <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
                       <span className="text-gray-500 font-medium">Accessing Database...</span>
@@ -106,7 +204,7 @@ export default function SearchDailyVisits() {
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-20 text-center">
+                  <td colSpan={8} className="p-20 text-center">
                     <div className="flex flex-col items-center gap-2 text-gray-600">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -117,7 +215,7 @@ export default function SearchDailyVisits() {
                 </tr>
               ) : (
                 filtered.map((c, i) => (
-                  <tr key={i} className="hover:bg-zinc-800/30 transition-colors group">
+                  <tr key={c._id || i} className="hover:bg-zinc-800/30 transition-colors group">
                     <td className="p-5 text-gray-400 font-mono text-sm">{c.Date}</td>
                     <td className="p-5 font-bold text-white group-hover:text-primary transition-colors">{c['Customer Name']}</td>
                     <td className="p-5 text-gray-300 italic">{c.Item}</td>
@@ -128,10 +226,32 @@ export default function SearchDailyVisits() {
                     </td>
                     <td className="p-5 text-gray-400 font-medium">{c['Telephone Number']}</td>
                     <td className="p-5 text-right font-mono font-bold text-primary">
-                      RS {parseFloat(c.Value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      RS {parseFloat(c.Value.toString() || '0').toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                     <td className="p-5 text-gray-300 max-w-xs truncate" title={c['Short Description'] || ''}>
                       {c['Short Description'] || '—'}
+                    </td>
+                    <td className="p-5 text-center whitespace-nowrap">
+                      <div className="flex items-center justify-center gap-3">
+                        <button
+                          onClick={() => openEditModal(c)}
+                          className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all duration-200 group/edit"
+                          title="Edit Record"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleDelete(c._id)}
+                          className="p-2 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all duration-200"
+                          title="Delete Record"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -145,6 +265,126 @@ export default function SearchDailyVisits() {
           <span className="text-primary/50 italic">MKM Enterprise System v1.0</span>
         </div>
       </div>
+
+      {/* ==================== EDIT MODAL ==================== */}
+      {showEditModal && editingRecord && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-dark-surface border border-dark-border rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-8 border-b border-dark-border sticky top-0 bg-dark-surface z-10">
+              <h2 className="text-2xl font-bold text-white">Edit Visit Record</h2>
+            </div>
+
+            <form onSubmit={handleUpdate} className="p-8 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Date</label>
+                  <input
+                    type="date"
+                    value={editingRecord.Date || ''}
+                    onChange={(e) => setEditingRecord({ ...editingRecord, Date: e.target.value })}
+                    className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Telephone</label>
+                  <input
+                    type="tel"
+                    value={editingRecord['Telephone Number'] || ''}
+                    onChange={(e) => setEditingRecord({ ...editingRecord, 'Telephone Number': e.target.value })}
+                    className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Customer Name</label>
+                <input
+                  type="text"
+                  value={editingRecord['Customer Name'] || ''}
+                  onChange={(e) => setEditingRecord({ ...editingRecord, 'Customer Name': e.target.value })}
+                  className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-1">
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Product</label>
+                  <select
+                    value={editingRecord.Item || 'Rug'}
+                    onChange={(e) => setEditingRecord({ ...editingRecord, Item: e.target.value })}
+                    className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  >
+                    <option value="Rug">Rug</option>
+                    <option value="Casa furniture">Casa furniture</option>
+                    <option value="Gebbe">Gebbe</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Quantity</label>
+                  <input
+                    type="number"
+                    value={editingRecord['Purchased Amount'] || ''}
+                    onChange={(e) => setEditingRecord({ ...editingRecord, 'Purchased Amount': Number(e.target.value) })}
+                    className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Value (RS)</label>
+                  <input
+                    type="number"
+                    value={editingRecord.Value || ''}
+                    onChange={(e) => setEditingRecord({ ...editingRecord, Value: Number(e.target.value) })}
+                    className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Description</label>
+                <textarea
+                  value={editingRecord['Short Description'] || ''}
+                  onChange={(e) => setEditingRecord({ ...editingRecord, 'Short Description': e.target.value })}
+                  className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none min-h-[90px] resize-y"
+                  rows={3}
+                />
+              </div>
+
+              {updateError && (
+                <div className="p-4 bg-rose-500/20 text-rose-300 rounded-xl text-center">
+                  {updateError}
+                </div>
+              )}
+
+              <div className="flex gap-4 pt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  disabled={updating}
+                  className="flex-1 bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={updating}
+                  className="flex-1 bg-primary hover:bg-primary-hover text-black font-bold py-4 rounded-xl disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {updating ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
