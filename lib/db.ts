@@ -9,7 +9,7 @@ if (!MONGODB_URI) {
 const purchasedSchema = new mongoose.Schema({
   date: { type: String, required: true },
   customerName: { type: String, required: true },
-  item: { type: String, enum: ['Rug', 'Casa furniture', 'Gebbe'], required: true },
+  item: { type: String, enum: ['Rug', 'Casa furniture', 'Gebbe', 'Sophie Garcia', 'Mkm furnitures', 'Sereno pots'], required: true },
   itemPurchasedAmount: { type: Number, required: true },
   telephoneNumber: { type: String, required: true },
   value: { type: Number, required: true },
