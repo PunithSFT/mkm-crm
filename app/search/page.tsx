@@ -345,6 +345,7 @@ export default function SearchPage() {
                     <option value="Sophie Garcia">Sophie Garcia</option>
                     <option value="Mkm furnitures">Mkm furnitures</option>
                     <option value="Sereno pots">Sereno pots</option>
+                    <option value="Apparels">Apparels</option>
                   </select>
                 </div>
 

@@ -11,7 +11,7 @@ const purchasedSchema = new mongoose.Schema({
   customerName: { type: String, required: true },       // keep required
   item: {
     type: String,
-    enum: ['Rug', 'Casa furniture', 'Gebbe', 'Sophie Garcia', 'Mkm furnitures', 'Sereno pots'],
+    enum: ['Rug', 'Casa furniture', 'Gebbe', 'Sophie Garcia', 'Mkm furnitures', 'Sereno pots', 'Apparels'],
     required: false,
     default: ''
   },
