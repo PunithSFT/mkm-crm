@@ -78,7 +78,7 @@ export default function AddPage() {
                 value={form.date}
                 onChange={(e) => setForm({ ...form, date: e.target.value })}
                 className={inputClasses}
-                required
+                
               />
             </div>
             <div>
@@ -89,7 +89,7 @@ export default function AddPage() {
                 value={form.telephoneNumber}
                 onChange={(e) => setForm({ ...form, telephoneNumber: e.target.value })}
                 className={inputClasses}
-                required
+                
               />
             </div>
           </div>
@@ -130,7 +130,7 @@ export default function AddPage() {
                 value={form.itemPurchasedAmount}
                 onChange={(e) => setForm({ ...form, itemPurchasedAmount: e.target.value })}
                 className={inputClasses}
-                required
+                
               />
             </div>
             <div>
@@ -141,7 +141,7 @@ export default function AddPage() {
                 value={form.value}
                 onChange={(e) => setForm({ ...form, value: e.target.value })}
                 className={inputClasses}
-                required
+                
               />
             </div>
           </div>

@@ -81,7 +81,6 @@ export default function AddVisitingClient() {
                 value={form.date}
                 onChange={(e) => setForm({ ...form, date: e.target.value })}
                 className={inputClasses}
-                required
               />
             </div>
             <div>
@@ -91,7 +90,6 @@ export default function AddVisitingClient() {
                 value={form.lastVisitDate}
                 onChange={(e) => setForm({ ...form, lastVisitDate: e.target.value })}
                 className={inputClasses}
-                required
               />
             </div>
           </div>
@@ -117,7 +115,6 @@ export default function AddVisitingClient() {
                 value={form.contactNumber}
                 onChange={(e) => setForm({ ...form, contactNumber: e.target.value })}
                 className={inputClasses}
-                required
               />
             </div>
             <div>
@@ -128,7 +125,6 @@ export default function AddVisitingClient() {
                 value={form.location}
                 onChange={(e) => setForm({ ...form, location: e.target.value })}
                 className={inputClasses}
-                required
               />
             </div>
           </div>

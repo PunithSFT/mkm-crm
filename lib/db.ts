@@ -7,16 +7,17 @@ if (!MONGODB_URI) {
 
 // ── Purchased Customers Schema ─────────────────────────────────────────────
 const purchasedSchema = new mongoose.Schema({
-  date: { type: String, required: true },
-  customerName: { type: String, required: true },
+  date: { type: String, required: false, default: '' }, // optional
+  customerName: { type: String, required: true },       // keep required
   item: {
     type: String,
     enum: ['Rug', 'Casa furniture', 'Gebbe', 'Sophie Garcia', 'Mkm furnitures', 'Sereno pots'],
-    required: true
+    required: false,
+    default: ''
   },
-  itemPurchasedAmount: { type: Number, required: true },
-  telephoneNumber: { type: String, required: true },
-  value: { type: Number, required: true },
+  itemPurchasedAmount: { type: Number, required: false, default: 0 },
+  telephoneNumber: { type: String, required: false, default: '' },
+  value: { type: Number, required: false, default: 0 },
   shortDescription: { type: String, default: '' },
 }, { timestamps: true });
 
@@ -24,30 +25,31 @@ export const PurchasedCustomer = mongoose.models.PurchasedCustomer || mongoose.m
 
 // ── Visiting Clients Schema ────────────────────────────────────────────────
 const visitingClientSchema = new mongoose.Schema({
-  date: { type: String, required: true },
-  clientName: { type: String, required: true },
-  contactNumber: { type: String, required: true },
-  location: { type: String, required: true },
+  date: { type: String, required: false, default: '' },
+  clientName: { type: String, required: true },         // keep required
+  contactNumber: { type: String, required: false, default: '' },
+  location: { type: String, required: false, default: '' },
   email: { type: String, default: '' },
-  lastVisitDate: { type: String, required: true },
+  lastVisitDate: { type: String, required: false, default: '' },
   remarks: { type: String, default: '' },
-  complimentStatus: { type: String, enum: ['Yes', 'No'], required: true },
+  complimentStatus: { type: String, enum: ['Yes', 'No'], default: 'No' },
 }, { timestamps: true });
 
 export const VisitingClient = mongoose.models.VisitingClient || mongoose.model('VisitingClient', visitingClientSchema);
 
 // ── Daily Visiting Customers Schema ────────────────────────────────────────
 const dailyVisitingSchema = new mongoose.Schema({
-  date: { type: String, required: true },
-  customerName: { type: String, required: true },
+  date: { type: String, required: false, default: '' },
+  customerName: { type: String, required: true },       // keep required
   item: {
     type: String,
     enum: ['Rug', 'Casa furniture', 'Gebbe', 'Sophie Garcia', 'Mkm furnitures', 'Sereno pots'],
-    required: true
+    required: false,
+    default: ''
   },
-  itemPurchasedAmount: { type: Number, required: true },
-  telephoneNumber: { type: String, required: true },
-  value: { type: Number, required: true },
+  itemPurchasedAmount: { type: Number, required: false, default: 0 },
+  telephoneNumber: { type: String, required: false, default: '' },
+  value: { type: Number, required: false, default: 0 },
   shortDescription: { type: String, default: '' },
 }, { timestamps: true });
 
