@@ -291,7 +291,7 @@ export default function VisitingClientsSearch() {
                     value={editingRecord.date || ''}
                     onChange={(e) => setEditingRecord({ ...editingRecord, date: e.target.value })}
                     className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                    required
+                    
                   />
                 </div>
                 <div>
@@ -301,7 +301,7 @@ export default function VisitingClientsSearch() {
                     value={editingRecord.lastVisitDate || ''}
                     onChange={(e) => setEditingRecord({ ...editingRecord, lastVisitDate: e.target.value })}
                     className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                    required
+                    
                   />
                 </div>
               </div>
@@ -325,7 +325,7 @@ export default function VisitingClientsSearch() {
                     value={editingRecord.contactNumber || ''}
                     onChange={(e) => setEditingRecord({ ...editingRecord, contactNumber: e.target.value })}
                     className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                    required
+                    
                   />
                 </div>
                 <div>
@@ -335,7 +335,7 @@ export default function VisitingClientsSearch() {
                     value={editingRecord.location || ''}
                     onChange={(e) => setEditingRecord({ ...editingRecord, location: e.target.value })}
                     className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                    required
+                    
                   />
                 </div>
               </div>

@@ -298,7 +298,7 @@ export default function SearchPage() {
                     value={editingRecord.date || ''}
                     onChange={(e) => setEditingRecord({ ...editingRecord, date: e.target.value })}
                     className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                    required
+                    
                   />
                 </div>
 
@@ -311,7 +311,7 @@ export default function SearchPage() {
                     value={editingRecord.telephoneNumber || ''}
                     onChange={(e) => setEditingRecord({ ...editingRecord, telephoneNumber: e.target.value })}
                     className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                    required
+                    
                   />
                 </div>
               </div>
@@ -357,7 +357,7 @@ export default function SearchPage() {
                     value={editingRecord.itemPurchasedAmount || ''}
                     onChange={(e) => setEditingRecord({ ...editingRecord, itemPurchasedAmount: Number(e.target.value) })}
                     className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                    required
+                    
                   />
                 </div>
 
@@ -370,7 +370,7 @@ export default function SearchPage() {
                     value={editingRecord.value || ''}
                     onChange={(e) => setEditingRecord({ ...editingRecord, value: Number(e.target.value) })}
                     className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                    required
+                    
                   />
                 </div>
               </div>

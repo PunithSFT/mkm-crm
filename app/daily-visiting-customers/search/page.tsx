@@ -283,7 +283,7 @@ export default function SearchDailyVisits() {
                     value={editingRecord.Date || ''}
                     onChange={(e) => setEditingRecord({ ...editingRecord, Date: e.target.value })}
                     className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                    required
+                    
                   />
                 </div>
 
@@ -294,7 +294,7 @@ export default function SearchDailyVisits() {
                     value={editingRecord['Telephone Number'] || ''}
                     onChange={(e) => setEditingRecord({ ...editingRecord, 'Telephone Number': e.target.value })}
                     className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                    required
+                    
                   />
                 </div>
               </div>
@@ -331,7 +331,7 @@ export default function SearchDailyVisits() {
                     value={editingRecord['Purchased Amount'] || ''}
                     onChange={(e) => setEditingRecord({ ...editingRecord, 'Purchased Amount': Number(e.target.value) })}
                     className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                    required
+                    
                   />
                 </div>
 
@@ -342,7 +342,7 @@ export default function SearchDailyVisits() {
                     value={editingRecord.Value || ''}
                     onChange={(e) => setEditingRecord({ ...editingRecord, Value: Number(e.target.value) })}
                     className="w-full bg-dark-bg border border-dark-border rounded-xl p-3.5 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                    required
+                    
                   />
                 </div>
               </div>
