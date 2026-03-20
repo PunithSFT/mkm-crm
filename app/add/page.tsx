@@ -118,7 +118,7 @@ export default function AddPage() {
   <option value="Casa furniture">Casa furniture</option>
   <option value="Gebbe">Gebbe</option>
   <option value="Sophie Garcia">Sophie Garcia</option>
-  <option value="Mkm furnitures">Mkm furnitures/items</option>
+  <option value="Mkm furnitures/items">Mkm furnitures/items</option>
   <option value="Sereno pots">Sereno pots</option>
   <option value="Apparels">Apparels</option>
 </select>
