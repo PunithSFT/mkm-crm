@@ -25,11 +25,12 @@ export default function Header() {
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 group">
               <Image
-                src="/MKM-Logo-VERTICAL-WHITETEXT-No-Background.png"
+                src="/MKM-Logo-HORIZONTAL-NO-BACKGROUND-WHITETEXT.png"
                 alt="MKM Enterprise Logo"
-                width={40}
+                width={150}
                 height={40}
-                className="transition-transform group-hover:scale-110 object-contain"
+                priority
+                className="transition-transform group-hover:scale-105 object-contain"
               />
               <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
                 MKM <span className="text-primary font-extrabold">CRM</span>
